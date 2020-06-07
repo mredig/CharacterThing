@@ -1,3 +1,4 @@
+import Foundation
 
 public enum Race: String, CaseIterable {
 	case human

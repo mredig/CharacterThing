@@ -11,17 +11,17 @@ public struct CharacterFactory {
 	public func createCharacter() throws -> PlayerCharacter {
 		var name: String
 		repeat {
-			name = chooseName()
+			name = chooseOption(chooseNameHelper)
 		} while !confirm("Is \(name) correct?")
 
 		var race: Race
 		repeat {
-			race = chooseRace()
+			race = chooseOption(chooseRaceHelper)
 		} while !confirm("Is \(race) correct?")
 
 		var classChoice: CharacterClass
 		repeat {
-			classChoice = chooseClass()
+			classChoice = chooseOption(chooseClassHelper)
 		} while !confirm("Is \(classChoice.name) correct?")
 
 		let newCharacter = try PlayerCharacter(name: name, race: race, playerClass: classChoice)
@@ -39,32 +39,12 @@ public struct CharacterFactory {
 		} while confirm("Continue creating another character?")
 	}
 
-	public func chooseName() -> String {
-		do {
-			let choice = try chooseNameHelper()
-			return choice
-		} catch {
-			print("Error: \(error)\n")
-			return chooseName()
-		}
-	}
-
 	public func chooseNameHelper() throws -> String {
 		let name = prompt("Character Name")
 		guard PlayerCharacter.nameValidator(name) else {
 			throw PlayerCharacter.CharacterGenerationError.invalidName
 		}
 		return name
-	}
-
-	public func chooseRace() -> Race {
-		do {
-			let choice = try chooseRaceHelper()
-			return choice
-		} catch {
-			print("Error: \(error)\n")
-			return chooseRace()
-		}
 	}
 
 	private func chooseRaceHelper() throws -> Race {
@@ -84,16 +64,6 @@ public struct CharacterFactory {
 			return race
 		}
 		throw CharacterGenerationError.invalidChoice
-	}
-
-	public func chooseClass() -> CharacterClass {
-		do {
-			let choice = try chooseClassHelper()
-			return choice
-		} catch {
-			print("Error: \(error)\n")
-			return chooseClass()
-		}
 	}
 
 	private func chooseClassHelper() throws -> CharacterClass {
@@ -124,6 +94,17 @@ public struct CharacterFactory {
 		}) else { return nil }
 
 		return match.init()
+	}
+
+	// MARK: - Utilities
+	public func chooseOption<T>(_ choiceFunction: () throws -> T) -> T {
+		do {
+			let choice = try choiceFunction()
+			return choice
+		} catch {
+			print("Error: \(error)\n")
+			return chooseOption(choiceFunction)
+		}
 	}
 
 	private func confirm(_ userPrompt: String, defaultAnswer: Bool = true) -> Bool {
