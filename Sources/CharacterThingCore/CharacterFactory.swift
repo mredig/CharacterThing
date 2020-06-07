@@ -9,20 +9,9 @@ public struct CharacterFactory {
 	public init() {}
 
 	public func createCharacter() throws -> PlayerCharacter {
-		var name: String
-		repeat {
-			name = chooseOption(chooseNameHelper)
-		} while !confirm("Is \(name) correct?")
-
-		var race: Race
-		repeat {
-			race = chooseOption(chooseRaceHelper)
-		} while !confirm("Is \(race) correct?")
-
-		var classChoice: CharacterClass
-		repeat {
-			classChoice = chooseOption(chooseClassHelper)
-		} while !confirm("Is \(classChoice) correct?")
+		let name = chooseOptionConfirmed(chooseNameHelper)
+		let race = chooseOptionConfirmed(chooseRaceHelper)
+		let classChoice = chooseOptionConfirmed(chooseClassHelper)
 
 		let newCharacter = try PlayerCharacter(name: name, race: race, playerClass: classChoice)
 		return newCharacter
@@ -97,6 +86,14 @@ public struct CharacterFactory {
 	}
 
 	// MARK: - Utilities
+	public func chooseOptionConfirmed<T>(_ choiceFunction: () throws -> T) -> T {
+		var choice: T
+		repeat {
+			choice = chooseOption(choiceFunction)
+		} while !confirm("Is \(choice) correct?")
+		return choice
+	}
+
 	public func chooseOption<T>(_ choiceFunction: () throws -> T) -> T {
 		do {
 			let choice = try choiceFunction()
