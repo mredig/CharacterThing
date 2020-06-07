@@ -25,7 +25,7 @@ public struct CharacterFactory {
 			} catch {
 				print("Error creating character: \(error)")
 			}
-		} while confirm("Continue creating another character?")
+		} while confirm("Continue creating another character?", defaultAnswer: false)
 	}
 
 	public func chooseNameHelper() throws -> String {
@@ -38,14 +38,9 @@ public struct CharacterFactory {
 
 	private func chooseRaceHelper() throws -> Race {
 		let allRacesString = Race.allCases
-			.enumerated()
-			.map { "\($0.offset + 1). \($0.element.rawValue.capitalized)" }
-			.joined(separator: "\n")
+			.listed(by: \.rawValue)
 
-		print("Choose a race from the following:\n\(allRacesString)\n[]: ", terminator: "")
-		guard let choice = readLine(strippingNewline: true) else {
-			throw CharacterGenerationError.stdinAborted
-		}
+		let choice = prompt("Choose a race from the following:\n\(allRacesString)\n")
 
 		if let index = Int(choice), (0..<Race.allCases.count).contains(index - 1) {
 			return Race.allCases[index - 1]
@@ -58,15 +53,12 @@ public struct CharacterFactory {
 	private func chooseClassHelper() throws -> CharacterClass {
 		let classes = CharacterClasses.shared.allClasses
 
-		let allClassesString = CharacterClasses.shared.allClasses
-			.enumerated()
-			.map { "\($0.offset + 1). \($0.element.name.capitalized)" }
-			.joined(separator: "\n")
+		let allClassesString = classes
+			.map { $0.name } // can't use keypaths on static variables
+			.listed(by: \.self)
 
-		print("Choose a class from the following:\n\(allClassesString)\n[]:", terminator: "")
-		guard let choice = readLine(strippingNewline: true) else {
-			throw CharacterGenerationError.stdinAborted
-		}
+		let choice = prompt("Choose a class from the following:\n\(allClassesString)\n")
+
 		if let index = Int(choice), (0..<classes.count).contains(index - 1) {
 			return classes[index - 1].init()
 		} else if let newClass = createClass(withString: choice) {
