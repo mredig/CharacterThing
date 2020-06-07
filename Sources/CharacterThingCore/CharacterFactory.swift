@@ -1,12 +1,14 @@
 import Foundation
 
-public enum CharacterFactory {
+public struct CharacterFactory {
 	public enum CharacterGenerationError: Error {
 		case invalidChoice
 		case stdinAborted
 	}
 
-	public static func createCharacter() throws -> PlayerCharacter {
+	public init() {}
+
+	public func createCharacter() throws -> PlayerCharacter {
 		var name: String
 		repeat {
 			name = chooseName()
@@ -26,7 +28,7 @@ public enum CharacterFactory {
 		return newCharacter
 	}
 
-	public static func createCharacters() {
+	public func createCharacters() {
 		repeat {
 			do {
 				let character = try createCharacter()
@@ -37,7 +39,7 @@ public enum CharacterFactory {
 		} while confirm("Continue creating another character?")
 	}
 
-	public static func chooseName() -> String {
+	public func chooseName() -> String {
 		do {
 			let choice = try chooseNameHelper()
 			return choice
@@ -47,7 +49,7 @@ public enum CharacterFactory {
 		}
 	}
 
-	public static func chooseNameHelper() throws -> String {
+	public func chooseNameHelper() throws -> String {
 		let name = prompt("Character Name")
 		guard PlayerCharacter.nameValidator(name) else {
 			throw PlayerCharacter.CharacterGenerationError.invalidName
@@ -55,7 +57,7 @@ public enum CharacterFactory {
 		return name
 	}
 
-	public static func chooseRace() -> Race {
+	public func chooseRace() -> Race {
 		do {
 			let choice = try chooseRaceHelper()
 			return choice
@@ -65,7 +67,7 @@ public enum CharacterFactory {
 		}
 	}
 
-	private static func chooseRaceHelper() throws -> Race {
+	private func chooseRaceHelper() throws -> Race {
 		let allRacesString = Race.allCases
 			.enumerated()
 			.map { "\($0.offset + 1). \($0.element.rawValue.capitalized)" }
@@ -84,7 +86,7 @@ public enum CharacterFactory {
 		throw CharacterGenerationError.invalidChoice
 	}
 
-	public static func chooseClass() -> CharacterClass {
+	public func chooseClass() -> CharacterClass {
 		do {
 			let choice = try chooseClassHelper()
 			return choice
@@ -94,10 +96,10 @@ public enum CharacterFactory {
 		}
 	}
 
-	private static func chooseClassHelper() throws -> CharacterClass {
-		let classes: [CharacterClass] = [Warrior(), Rogue(), Mage(), Druid(), Shaman()]
+	private func chooseClassHelper() throws -> CharacterClass {
+		let classes = CharacterClasses.shared.allClasses
 
-		let allClassesString = classes
+		let allClassesString = CharacterClasses.shared.allClasses
 			.enumerated()
 			.map { "\($0.offset + 1). \($0.element.name.capitalized)" }
 			.joined(separator: "\n")
@@ -107,31 +109,24 @@ public enum CharacterFactory {
 			throw CharacterGenerationError.stdinAborted
 		}
 		if let index = Int(choice), (0..<classes.count).contains(index - 1) {
-			return classes[index - 1]
+			return classes[index - 1].init()
 		} else if let newClass = createClass(withString: choice) {
 			return newClass
 		}
 		throw CharacterGenerationError.invalidChoice
 	}
 
-	private static func createClass(withString string: String) -> CharacterClass? {
-		switch string.lowercased() {
-		case "warrior":
-			return Warrior()
-		case "rogue":
-			return Rogue()
-		case "mage":
-			return Mage()
-		case "druid":
-			return Druid()
-		case "shaman":
-			return Shaman()
-		default:
-			return nil
-		}
+	private func createClass(withString string: String) -> CharacterClass? {
+		let lc = string.lowercased()
+
+		guard let match = CharacterClasses.shared.allClasses.first(where: {
+			$0.name.lowercased() == lc
+		}) else { return nil }
+
+		return match.init()
 	}
 
-	private static func confirm(_ userPrompt: String, defaultAnswer: Bool = true) -> Bool {
+	private func confirm(_ userPrompt: String, defaultAnswer: Bool = true) -> Bool {
 		let defaultAnswerStr = defaultAnswer ? "Y/n" : "y/N"
 		let input = prompt(userPrompt, defaultAnswer: defaultAnswerStr)
 		if input.isEmpty {
@@ -147,7 +142,7 @@ public enum CharacterFactory {
 		}
 	}
 
-	private static func prompt(_ userPrompt: String, defaultAnswer: String? = nil) -> String {
+	private func prompt(_ userPrompt: String, defaultAnswer: String? = nil) -> String {
 		let totalPrompt: String
 		if let defaultAnswer = defaultAnswer {
 			totalPrompt = "\(userPrompt): [\(defaultAnswer)] "

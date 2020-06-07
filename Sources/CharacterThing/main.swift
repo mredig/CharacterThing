@@ -1,3 +1,3 @@
 import CharacterThingCore
 
-CharacterFactory.createCharacters()
+CharacterFactory().createCharacters()
