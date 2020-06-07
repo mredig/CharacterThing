@@ -1,0 +1,3 @@
+import CharacterThingCore
+
+CharacterFactory.createCharacters()
