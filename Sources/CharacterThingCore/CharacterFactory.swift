@@ -131,13 +131,9 @@ public enum CharacterFactory {
 		}
 	}
 
-	private static func confirm(_ prompt: String, defaultAnswer: Bool = true) -> Bool {
-		let defaultAnswerStr = defaultAnswer ? "[Y/n]" : "[y/N]"
-		print("\(prompt): \(defaultAnswerStr):", terminator: "")
-		guard let input = readLine(strippingNewline: true) else {
-			print("Invalid input. Try again.\n")
-			return confirm(prompt, defaultAnswer: defaultAnswer)
-		}
+	private static func confirm(_ userPrompt: String, defaultAnswer: Bool = true) -> Bool {
+		let defaultAnswerStr = defaultAnswer ? "Y/n" : "y/N"
+		let input = prompt(userPrompt, defaultAnswer: defaultAnswerStr)
 		if input.isEmpty {
 			return defaultAnswer
 		} else {
@@ -147,7 +143,7 @@ public enum CharacterFactory {
 				return false
 			}
 			print("Invalid input. Try again.\n")
-			return confirm(prompt, defaultAnswer: defaultAnswer)
+			return confirm(userPrompt, defaultAnswer: defaultAnswer)
 		}
 	}
 
