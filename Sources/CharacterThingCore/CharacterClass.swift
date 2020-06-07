@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol CharacterClass: AnyObject {
+public protocol CharacterClass: AnyObject, CustomStringConvertible {
 	static var name: String { get }
 	var name: String { get }
 
@@ -10,6 +10,10 @@ public protocol CharacterClass: AnyObject {
 public extension CharacterClass {
 	var name: String {
 		Self.name
+	}
+
+	var description: String {
+		name
 	}
 }
 

@@ -22,7 +22,7 @@ public struct CharacterFactory {
 		var classChoice: CharacterClass
 		repeat {
 			classChoice = chooseOption(chooseClassHelper)
-		} while !confirm("Is \(classChoice.name) correct?")
+		} while !confirm("Is \(classChoice) correct?")
 
 		let newCharacter = try PlayerCharacter(name: name, race: race, playerClass: classChoice)
 		return newCharacter
