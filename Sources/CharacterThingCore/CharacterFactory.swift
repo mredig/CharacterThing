@@ -42,29 +42,32 @@ public struct CharacterFactory {
 
 		let choice = prompt("Choose a race from the following:\n\(allRacesString)\n")
 
-		if let index = Int(choice), (0..<Race.allCases.count).contains(index - 1) {
-			return Race.allCases[index - 1]
-		} else if let race = Race(rawValue: choice.lowercased()) {
-			return race
+		guard let race = createRawType(from: choice, sourcedFrom: Race.allCases, rawCreation: Race.init) else {
+			throw CharacterGenerationError.invalidChoice
 		}
-		throw CharacterGenerationError.invalidChoice
+		return race
 	}
 
 	private func chooseClassHelper() throws -> CharacterClass {
-		let classes = CharacterClasses.shared.allClasses
+		let classes = CharacterClasses.shared.allClasses.map { $0.init() }
 
 		let allClassesString = classes
-			.map { $0.name } // can't use keypaths on static variables
-			.listed(by: \.self)
+			.listed(by: \.name)
 
 		let choice = prompt("Choose a class from the following:\n\(allClassesString)\n")
 
-		if let index = Int(choice), (0..<classes.count).contains(index - 1) {
-			return classes[index - 1].init()
-		} else if let newClass = createClass(withString: choice) {
-			return newClass
+		guard let theClass = createRawType(from: choice, sourcedFrom: classes, rawCreation: createClass) else {
+			throw CharacterGenerationError.invalidChoice
 		}
-		throw CharacterGenerationError.invalidChoice
+		return theClass
+	}
+
+	private func createRawType<T>(from rawString: String, sourcedFrom source: Array<T>, rawCreation: (String) -> T?) -> T? {
+		if let index = Int(rawString), (0..<source.count).contains(index - 1) {
+			return source[index - 1]
+		} else {
+			return rawCreation(rawString)
+		}
 	}
 
 	private func createClass(withString string: String) -> CharacterClass? {
