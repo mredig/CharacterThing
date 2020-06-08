@@ -28,7 +28,7 @@ public struct CharacterFactory {
 		} while confirm("Continue creating another character?", defaultAnswer: false)
 	}
 
-	public func chooseNameHelper() throws -> String {
+	private func chooseNameHelper() throws -> String {
 		let name = prompt("Character Name")
 		guard PlayerCharacter.nameValidator(name) else {
 			throw PlayerCharacter.CharacterGenerationError.invalidName
@@ -81,7 +81,7 @@ public struct CharacterFactory {
 	}
 
 	// MARK: - Utilities
-	public func chooseOptionConfirmed<T>(_ choiceFunction: () throws -> T) -> T {
+	private func chooseOptionConfirmed<T>(_ choiceFunction: () throws -> T) -> T {
 		var choice: T
 		repeat {
 			choice = chooseOption(choiceFunction)
@@ -89,7 +89,7 @@ public struct CharacterFactory {
 		return choice
 	}
 
-	public func chooseOption<T>(_ choiceFunction: () throws -> T) -> T {
+	private func chooseOption<T>(_ choiceFunction: () throws -> T) -> T {
 		do {
 			let choice = try choiceFunction()
 			return choice
